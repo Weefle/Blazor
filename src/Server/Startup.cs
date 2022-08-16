@@ -14,6 +14,9 @@ using System.IO;
 using BlazorHero.CleanArchitecture.Server.Filters;
 using BlazorHero.CleanArchitecture.Server.Managers.Preferences;
 using Microsoft.Extensions.Localization;
+using Microsoft.EntityFrameworkCore;
+using BlazorHero.CleanArchitecture.Infrastructure.Contexts;
+using Hangfire.Storage.SQLite;
 
 namespace BlazorHero.CleanArchitecture.Server
 {
@@ -25,6 +28,7 @@ namespace BlazorHero.CleanArchitecture.Server
         }
 
         private readonly IConfiguration _configuration;
+
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -52,7 +56,11 @@ namespace BlazorHero.CleanArchitecture.Server
             services.AddSharedInfrastructure(_configuration);
             services.RegisterSwagger();
             services.AddInfrastructureMappings();
-            services.AddHangfire(x => x.UseSqlServerStorage(_configuration.GetConnectionString("DefaultConnection")));
+            services.AddHangfire(configuration => configuration
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSQLiteStorage());
+            //services.AddHangfire(x => x.UseSqlServerStorage(_configuration.GetConnectionString("DefaultConnection")));
             services.AddHangfireServer();
             services.AddControllers().AddValidators();
             services.AddExtendedAttributesValidators();
@@ -69,6 +77,7 @@ namespace BlazorHero.CleanArchitecture.Server
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IStringLocalizer<Startup> localizer)
         {
+
             app.UseForwarding(_configuration);
             app.UseExceptionHandling(env);
             app.UseHttpsRedirection();

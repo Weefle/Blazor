@@ -24,9 +24,10 @@ namespace BlazorHero.CleanArchitecture.Server
                 {
                     var context = services.GetRequiredService<BlazorHeroContext>();
 
-                    if (context.Database.IsSqlServer())
+                    if (context.Database.IsSqlite())
                     {
-                        context.Database.Migrate();
+                        context.Database.EnsureCreated();
+
                     }
                 }
                 catch (Exception ex)
